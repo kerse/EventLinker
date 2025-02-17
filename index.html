@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Генератор ссылки для Google Календаря</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap">
+  <!-- Подключаем flatpickr для удобного выбора даты и времени -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     * {
       box-sizing: border-box;
@@ -37,7 +39,6 @@
       font-weight: 500;
     }
     input[type="text"],
-    input[type="datetime-local"],
     input[type="number"],
     textarea,
     select {
@@ -50,7 +51,6 @@
       transition: border-color 0.2s;
     }
     input[type="text"]:focus,
-    input[type="datetime-local"]:focus,
     input[type="number"]:focus,
     textarea:focus,
     select:focus {
@@ -101,7 +101,8 @@
     
     <div class="form-group">
       <label for="startTime">Дата и время (начало)</label>
-      <input type="datetime-local" id="startTime">
+      <!-- Поле, преобразованное flatpickr, с европейским форматом и 24-часовым временем -->
+      <input type="text" id="startTime" placeholder="dd/mm/yyyy HH:mm">
       <small id="timeWarning" style="color:red; display:none;">Введенная дата/время в прошлом!</small>
     </div>
     
@@ -127,30 +128,44 @@
     </div>
   </div>
 
-  <!-- Подключаем Luxon для работы с датами и часовыми поясами -->
+  <!-- Подключаем Luxon для работы с датами -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <!-- Подключаем flatpickr -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
     const DateTime = luxon.DateTime;
 
-    // Заполняем выпадающий список часовыми поясами
+    // Расширенный список популярных часовых поясов
     const timeZones = [
-      "UTC",
+      "Pacific/Midway",
+      "Pacific/Honolulu",
+      "America/Anchorage",
+      "America/Los_Angeles",
+      "America/Denver",
+      "America/Chicago",
+      "America/New_York",
+      "America/Sao_Paulo",
+      "Atlantic/Azores",
       "Europe/London",
+      "Europe/Paris",
       "Europe/Berlin",
+      "Europe/Madrid",
+      "Europe/Rome",
+      "Europe/Istanbul",
       "Europe/Moscow",
+      "Asia/Dubai",
+      "Asia/Karachi",
       "Asia/Kolkata",
-      "Asia/Shanghai",
+      "Asia/Dhaka",
+      "Asia/Bangkok",
+      "Asia/Hong_Kong",
       "Asia/Tokyo",
       "Australia/Sydney",
-      "America/New_York",
-      "America/Chicago",
-      "America/Denver",
-      "America/Los_Angeles"
+      "Pacific/Auckland"
     ];
 
     const timeZoneSelect = document.getElementById("timeZone");
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
     timeZones.forEach(tz => {
       const option = document.createElement("option");
       option.value = tz;
@@ -161,12 +176,20 @@
       timeZoneSelect.appendChild(option);
     });
 
+    // Инициализация flatpickr для поля даты и времени
+    const fp = flatpickr("#startTime", {
+      enableTime: true,
+      dateFormat: "d/m/Y H:i",  // европейский формат: dd/mm/yyyy HH:mm
+      time_24hr: true,
+      onChange: updateLink
+    });
+
     // Форматирование даты для Google Календаря: YYYYMMDDTHHmmssZ
     function formatToGoogleCalendar(dt) {
       return dt.toUTC().toFormat("yyyyLLdd'T'HHmmss'Z'");
     }
 
-    // Функция для создания читаемой строки запроса с использованием encodeURI
+    // Создание читаемой строки запроса с использованием encodeURI
     function buildReadableQueryString(params) {
       return Object.entries(params).map(([key, value]) => {
         return key + '=' + encodeURI(value);
@@ -177,20 +200,25 @@
     function updateLink() {
       const title = document.getElementById("eventTitle").value;
       const details = document.getElementById("eventDetails").value;
-      const startTimeInput = document.getElementById("startTime").value;
       const durationInput = document.getElementById("duration").value;
       const tz = document.getElementById("timeZone").value;
       const location = document.getElementById("location").value;
       const warningEl = document.getElementById("timeWarning");
+      const dateStr = document.getElementById("startTime").value;
 
-      if (!startTimeInput) {
+      if (!dateStr) {
         document.getElementById("generatedLink").value = "";
         return;
       }
 
-      // Парсим дату/время согласно выбранному часовому поясу
-      let startDate = DateTime.fromISO(startTimeInput, { zone: tz });
-      // Проверяем, не в прошлом ли время
+      // Парсинг даты из строки в формате dd/mm/yyyy HH:mm с учетом выбранного часового пояса
+      let startDate = DateTime.fromFormat(dateStr, "d/M/yyyy H:mm", { zone: tz });
+      if (!startDate.isValid) {
+        document.getElementById("generatedLink").value = "";
+        return;
+      }
+
+      // Проверка, что выбранная дата не в прошлом
       if (startDate < DateTime.now().setZone(tz)) {
         warningEl.style.display = "block";
       } else {
@@ -215,7 +243,7 @@
       document.getElementById("generatedLink").value = finalUrl;
     }
 
-    // Обработчики событий на изменение полей
+    // Обработчики событий на изменение всех полей
     document.querySelectorAll("input, textarea, select").forEach(el => {
       el.addEventListener("input", updateLink);
       el.addEventListener("change", updateLink);

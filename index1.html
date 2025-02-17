@@ -28,14 +28,12 @@
         <option value="GMT+2">GMT+2</option>
         <option value="GMT+3">GMT+3</option>
         <option value="GMT+4">GMT+4</option>
-        <!-- При необходимости можно добавить другие -->
       </select>
     </label>
     <label>Ссылка на вебинар:
       <input type="url" id="webinarLink" placeholder="https://example.com">
     </label>
     <label>Тэг:
-      <!-- Тэг будет формироваться автоматически из даты, но его можно откорректировать -->
       <input type="text" id="tag" placeholder="Например, webinar1203">
     </label>
     <label>Начальный пост (memo):
@@ -48,23 +46,280 @@
   <button id="copyButton">Скопировать</button>
 
   <script>
-    /* LZString v1.4.4 - включено в один файл */
-    var LZString=function(){function o(o,r){if(!t[o]){t[o]={};for(var n=0;n<o.length;n++)t[o][o.charAt(n)]=n}return t[o][r]}var r=String.fromCharCode,n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},i={compressToEncodedURIComponent:function(o){return null==o?"":i._compress(o,6,function(o){return n.charAt(o)})},decompressFromEncodedURIComponent:function(o){return null==o?"":""===o?null:i._decompress(o.length,6,function(r){return o.charAt(r)})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(o){return null==o?"":""===o?null:i._decompress(o.length,15,function(r){return o.charCodeAt(r)-32})},compressToUint8Array:function(o){for(var r=i.compress(o), n=new Uint8Array(2*r.length), e=0,t=r.length;e<t;e++){var s=r.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null===o||void 0===o)return i.decompress(o);for(var n=new Array(o.length/2), e=0,t=n.length;e<t;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(o,r,n){if(null==o)return"";var e,t,i,s={},p={},u="",a="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<o.length;i+=1){u=o.charAt(i);if(Object.prototype.hasOwnProperty.call(s,u)||(s[u]=f++,p[u]=!0),a=c+u,Object.prototype.hasOwnProperty.call(s,a))c=a;else{if(Object.prototype.hasOwnProperty.call(p,c)){if(c.charCodeAt(0)<256){for(e=0;h>v;)m<<=1,v++,(f>v)&& (m|=0), v==h&&(d.push(n(m)),m=0,v=0);var y=c.charCodeAt(0);for(e=0;e<8;e++){m=(m<<1)|(y&1),y>>=1,v++,v==h&&(d.push(n(m)),m=0,v=0)}}else{var g=1;for(e=0;g<c.charCodeAt(0)&& (g<<=1,1););for(e=0;e<g;e++){m=(m<<1)|((c.charCodeAt(0)>>e)&1),v++,v==h&&(d.push(n(m)),m=0,v=0)}}d.push(n(s[c])),f++,c=u, p[c]=!0}else d.push(n(s[c])),f++,c=u}}if(""!==c){if(Object.prototype.hasOwnProperty.call(p,c)){if(c.charCodeAt(0)<256){for(e=0;h>v;)m<<=1,v++,v==h&&(d.push(n(m)),m=0,v=0);var y=c.charCodeAt(0);for(e=0;e<8;e++){m=(m<<1)|(y&1),y>>=1,v++,v==h&&(d.push(n(m)),m=0,v=0)}}else{var g=1;for(e=0;g<c.charCodeAt(0)&& (g<<=1,1););for(e=0;e<g;e++){m=(m<<1)|((c.charCodeAt(0)>>e)&1),v++,v==h&&(d.push(n(m)),m=0,v=0)}}delete p[c]}else d.push(n(s[c]));}for(;;){m<<=1,v==h-1?(d.push(n(m)),break):v++}return d.join("")},decompress:function(o){return null==o?"":""===o?null:i._decompress(o.length,16,function(r){return o.charCodeAt(r)})},_decompress:function(o,r,n){var e,t,i,s,p,u,a,c,l,f=[],h=4,d=4,v=3,m="",w=Array(Math.pow(2,2)),A={val:n(0),position:r,index:1};for(t=0;t<3;t+=1)f[t]=t;for(p=0,a=Math.pow(2,2);p<a;p+=1)w[p]=0;a=n(0),u=0, a>>=0, l=a; m+=r(l); for(;;){if(A.index>o)return ""; for(i=0,s=0,a=Math.pow(2,v);s<a;s+=1) {p=n(A.index++), l|=(p&1)<<s;}switch(e=l){case 0:for(i=0,s=0,a=Math.pow(2,8);s<a;s+=1){p=n(A.index++), l|=(p&1)<<s;} m+=r(l), f[d++]=l, e=d-1; break; case 1:for(i=0,s=0,a=Math.pow(2,16);s<a;s+=1){p=n(A.index++), l|=(p&1)<<s;} m+=r(l), f[d++]=l, e=d-1; break; case 2: return m;} if(f[e]) m+=r(f[e]); else {if(e===d){m+=r(l), f[d++]=l;} else return null;} f[d++]=r(l)+r(f[e]);}}; return i}();
+    /* LZString v1.4.4 - включено в один файл, исправлена ошибка с break */
+    var LZString = function() {
+      function o(o, r) {
+        if (!t[o]) {
+          t[o] = {};
+          for (var n = 0; n < o.length; n++) t[o][o.charAt(n)] = n;
+        }
+        return t[o][r];
+      }
+      var r = String.fromCharCode,
+          n = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+          e = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",
+          t = {},
+          i = {
+            compressToEncodedURIComponent: function(o) {
+              return null == o ? "" : i._compress(o, 6, function(o) {
+                return n.charAt(o);
+              });
+            },
+            decompressFromEncodedURIComponent: function(o) {
+              return null == o ? "" : "" === o ? null : i._decompress(o.length, 6, function(r) {
+                return o.charAt(r);
+              });
+            },
+            compressToUTF16: function(o) {
+              return null == o ? "" : i._compress(o, 15, function(o) {
+                return r(o + 32);
+              }) + " ";
+            },
+            decompressFromUTF16: function(o) {
+              return null == o ? "" : "" === o ? null : i._decompress(o.length, 15, function(r) {
+                return o.charCodeAt(r) - 32;
+              });
+            },
+            compressToUint8Array: function(o) {
+              for (var r = i.compress(o), n = new Uint8Array(2 * r.length), e = 0, t = r.length; e < t; e++) {
+                var s = r.charCodeAt(e);
+                n[2 * e] = s >>> 8;
+                n[2 * e + 1] = s % 256;
+              }
+              return n;
+            },
+            decompressFromUint8Array: function(o) {
+              if (null === o || void 0 === o) return i.decompress(o);
+              for (var n = new Array(o.length / 2), e = 0, t = n.length; e < t; e++) {
+                n[e] = 256 * o[2 * e] + o[2 * e + 1];
+              }
+              var s = [];
+              n.forEach(function(o) {
+                s.push(r(o));
+              });
+              return i.decompress(s.join(""));
+            },
+            compress: function(o) {
+              return i._compress(o, 16, function(o) {
+                return r(o);
+              });
+            },
+            _compress: function(o, r, n) {
+              if (null == o) return "";
+              var e, t, i, s = {},
+                  p = {},
+                  u = "",
+                  a = "",
+                  c = "",
+                  l = 2,
+                  f = 3,
+                  h = 2,
+                  d = [],
+                  m = 0,
+                  v = 0;
+              for (i = 0; i < o.length; i += 1) {
+                u = o.charAt(i);
+                if (!Object.prototype.hasOwnProperty.call(s, u)) {
+                  s[u] = f++;
+                  p[u] = true;
+                }
+                a = c + u;
+                if (Object.prototype.hasOwnProperty.call(s, a)) {
+                  c = a;
+                } else {
+                  if (Object.prototype.hasOwnProperty.call(p, c)) {
+                    if (c.charCodeAt(0) < 256) {
+                      for (e = 0; h > v;) {
+                        m <<= 1;
+                        if (v == h - 1) {
+                          d.push(n(m));
+                          break;
+                        } else {
+                          v++;
+                        }
+                      }
+                      var y = c.charCodeAt(0);
+                      for (e = 0; e < 8; e++) {
+                        m = (m << 1) | (y & 1);
+                        y >>= 1;
+                        v++;
+                        if (v == h) {
+                          d.push(n(m));
+                          m = 0;
+                          v = 0;
+                        }
+                      }
+                    } else {
+                      var g = 1;
+                      for (e = 0; g < c.charCodeAt(0);) {
+                        g <<= 1;
+                      }
+                      for (e = 0; e < g; e++) {
+                        m = (m << 1) | ((c.charCodeAt(0) >> e) & 1);
+                        v++;
+                        if (v == h) {
+                          d.push(n(m));
+                          m = 0;
+                          v = 0;
+                        }
+                      }
+                    }
+                    d.push(n(s[c]));
+                    f++;
+                    c = u;
+                    p[c] = true;
+                  } else {
+                    d.push(n(s[c]));
+                    f++;
+                    c = u;
+                  }
+                }
+              }
+              if ("" !== c) {
+                if (Object.prototype.hasOwnProperty.call(p, c)) {
+                  if (c.charCodeAt(0) < 256) {
+                    for (e = 0; h > v;) {
+                      m <<= 1;
+                      if (v == h - 1) {
+                        d.push(n(m));
+                        break;
+                      } else {
+                        v++;
+                      }
+                    }
+                    var y = c.charCodeAt(0);
+                    for (e = 0; e < 8; e++) {
+                      m = (m << 1) | (y & 1);
+                      y >>= 1;
+                      v++;
+                      if (v == h) {
+                        d.push(n(m));
+                        m = 0;
+                        v = 0;
+                      }
+                    }
+                  } else {
+                    var g = 1;
+                    for (e = 0; g < c.charCodeAt(0);) {
+                      g <<= 1;
+                    }
+                    for (e = 0; e < g; e++) {
+                      m = (m << 1) | ((c.charCodeAt(0) >> e) & 1);
+                      v++;
+                      if (v == h) {
+                        d.push(n(m));
+                        m = 0;
+                        v = 0;
+                      }
+                    }
+                    delete p[c];
+                  }
+                } else {
+                  d.push(n(s[c]));
+                }
+              }
+              for (;;) {
+                m <<= 1;
+                if (v == h - 1) {
+                  d.push(n(m));
+                  break;
+                } else {
+                  v++;
+                }
+              }
+              return d.join("");
+            },
+            decompress: function(o) {
+              return null == o ? "" : "" === o ? null : i._decompress(o.length, 16, function(r) {
+                return o.charCodeAt(r);
+              });
+            },
+            _decompress: function(o, n, s) {
+              var p, u, a, c, l, f, h, d = [],
+                  m = 4,
+                  v = 4,
+                  w = 3,
+                  A = "",
+                  C = [],
+                  k = {
+                    val: s(0),
+                    position: n,
+                    index: 1
+                  };
+              for (a = 0; a < 3; a += 1) {
+                d[a] = a;
+              }
+              c = 0;
+              for (l = Math.pow(2, 2); c < l; c += 1) {
+                C[c] = 0;
+              }
+              a = s(0);
+              u = 0;
+              a >>= 0;
+              A += r(a);
+              for (;;) {
+                if (k.index > o) {
+                  return "";
+                }
+                for (a = 0, c = 0; c < Math.pow(2, w); c += 1) {
+                  p = s(k.index++);
+                  a |= (p & 1) << c;
+                }
+                switch (u = a) {
+                  case 0:
+                    a = 0;
+                    for (c = 0; c < 8; c += 1) {
+                      p = s(k.index++);
+                      a |= (p & 1) << c;
+                    }
+                    A += r(a);
+                    d[m++] = a;
+                    u = m - 1;
+                    break;
+                  case 1:
+                    a = 0;
+                    for (c = 0; c < 16; c += 1) {
+                      p = s(k.index++);
+                      a |= (p & 1) << c;
+                    }
+                    A += r(a);
+                    d[m++] = a;
+                    u = m - 1;
+                    break;
+                  case 2:
+                    return A;
+                }
+                if (d[u]) {
+                  A += r(d[u]);
+                } else {
+                  if (u === m) {
+                    A += r(a);
+                    d[m++] = a;
+                  } else {
+                    return null;
+                  }
+                }
+                d[m++] = a + r(d[u]);
+              }
+            }
+          };
+      return i;
+    }();
 
     // Функция обновления JSON-вывода и URL
     function updateOutput() {
       // Чтение значений полей
-      var eventName    = document.getElementById('eventName').value;
-      var eventDateTime= document.getElementById('eventDateTime').value;
-      var timeZone     = document.getElementById('timeZone').value;
-      var webinarLink  = document.getElementById('webinarLink').value;
-      var tag          = document.getElementById('tag').value;
-      var memo         = document.getElementById('memo').value;
-      
+      var eventName = document.getElementById('eventName').value;
+      var eventDateTime = document.getElementById('eventDateTime').value;
+      var timeZone = document.getElementById('timeZone').value;
+      var webinarLink = document.getElementById('webinarLink').value;
+      var tag = document.getElementById('tag').value;
+      var memo = document.getElementById('memo').value;
+
       // Автоматическая генерация тэга по дате (формат: webinarDDMM)
       if (eventDateTime) {
         // Формат datetime-local: "YYYY-MM-DDTHH:MM"
-        var day   = eventDateTime.substring(8,10);
+        var day = eventDateTime.substring(8,10);
         var month = eventDateTime.substring(5,7);
         var autoTag = "webinar" + day + month;
         // Если поле тега пустое или уже начинается с "webinar", обновляем его
@@ -73,7 +328,7 @@
           document.getElementById('tag').value = tag;
         }
       }
-      
+
       // Собираем объект данных
       var data = {
         eventName: eventName,
@@ -83,19 +338,19 @@
         tag: tag,
         memo: memo
       };
-      
+
       // Преобразуем объект в отформатированный JSON
       var jsonData = JSON.stringify(data, null, 2);
-      
+
       // Обновляем вывод
       document.getElementById('output').textContent = jsonData;
-      
+
       // Сжимаем JSON и обновляем URL-параметр "data"
       var compressed = LZString.compressToEncodedURIComponent(jsonData);
       var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + "?data=" + compressed;
       window.history.replaceState(null, "", newUrl);
     }
-    
+
     // Кнопка для копирования JSON в буфер обмена
     document.getElementById('copyButton').addEventListener('click', function() {
       var output = document.getElementById('output').textContent;
@@ -105,13 +360,13 @@
         alert('Ошибка копирования: ' + err);
       });
     });
-    
+
     // Добавляем обработчик события на все поля формы
     var inputs = document.querySelectorAll('#eventForm input, #eventForm select, #eventForm textarea');
     inputs.forEach(function(input) {
       input.addEventListener('input', updateOutput);
     });
-    
+
     // При загрузке страницы проверяем наличие параметра "data" в URL
     window.addEventListener('load', function() {
       var params = new URLSearchParams(window.location.search);
@@ -120,12 +375,12 @@
         var jsonData = LZString.decompressFromEncodedURIComponent(compressedData);
         try {
           var data = JSON.parse(jsonData);
-          if(data.eventName !== undefined)     document.getElementById('eventName').value    = data.eventName;
-          if(data.eventDateTime !== undefined) document.getElementById('eventDateTime').value= data.eventDateTime;
-          if(data.timeZone !== undefined)      document.getElementById('timeZone').value     = data.timeZone;
-          if(data.webinarLink !== undefined)   document.getElementById('webinarLink').value  = data.webinarLink;
-          if(data.tag !== undefined)           document.getElementById('tag').value          = data.tag;
-          if(data.memo !== undefined)          document.getElementById('memo').value         = data.memo;
+          if(data.eventName !== undefined) document.getElementById('eventName').value = data.eventName;
+          if(data.eventDateTime !== undefined) document.getElementById('eventDateTime').value = data.eventDateTime;
+          if(data.timeZone !== undefined) document.getElementById('timeZone').value = data.timeZone;
+          if(data.webinarLink !== undefined) document.getElementById('webinarLink').value = data.webinarLink;
+          if(data.tag !== undefined) document.getElementById('tag').value = data.tag;
+          if(data.memo !== undefined) document.getElementById('memo').value = data.memo;
         } catch (e) {
           console.error("Ошибка при разборе данных из URL", e);
         }

@@ -38,6 +38,7 @@
     }
     input[type="text"],
     input[type="datetime-local"],
+    input[type="number"],
     textarea,
     select {
       width: 100%;
@@ -50,6 +51,7 @@
     }
     input[type="text"]:focus,
     input[type="datetime-local"]:focus,
+    input[type="number"]:focus,
     textarea:focus,
     select:focus {
       border-color: #007BFF;
@@ -86,27 +88,38 @@
 <body>
   <div class="container">
     <h1>Генератор ссылки для Google Календаря</h1>
+    
     <div class="form-group">
       <label for="eventTitle">Название события</label>
       <input type="text" id="eventTitle" placeholder="Введите название события">
     </div>
+    
     <div class="form-group">
       <label for="eventDetails">Детали</label>
       <textarea id="eventDetails" placeholder="Введите детали"></textarea>
     </div>
+    
     <div class="form-group">
       <label for="startTime">Дата и время (начало)</label>
       <input type="datetime-local" id="startTime">
       <small id="timeWarning" style="color:red; display:none;">Введенная дата/время в прошлом!</small>
     </div>
+    
+    <div class="form-group">
+      <label for="duration">Продолжительность мероприятия (в минутах)</label>
+      <input type="number" id="duration" value="60" min="1">
+    </div>
+    
     <div class="form-group">
       <label for="timeZone">Часовой пояс</label>
       <select id="timeZone"></select>
     </div>
+    
     <div class="form-group">
       <label for="location">Локация</label>
       <input type="text" id="location" value="Онлайн">
     </div>
+    
     <div class="form-group">
       <label for="generatedLink">Сгенерированная ссылка</label>
       <input type="text" id="generatedLink" readonly>
@@ -153,11 +166,19 @@
       return dt.toUTC().toFormat("yyyyLLdd'T'HHmmss'Z'");
     }
 
+    // Функция для создания читаемой строки запроса с использованием encodeURI
+    function buildReadableQueryString(params) {
+      return Object.entries(params).map(([key, value]) => {
+        return key + '=' + encodeURI(value);
+      }).join('&');
+    }
+
     // Функция обновления ссылки
     function updateLink() {
       const title = document.getElementById("eventTitle").value;
       const details = document.getElementById("eventDetails").value;
       const startTimeInput = document.getElementById("startTime").value;
+      const durationInput = document.getElementById("duration").value;
       const tz = document.getElementById("timeZone").value;
       const location = document.getElementById("location").value;
       const warningEl = document.getElementById("timeWarning");
@@ -169,27 +190,28 @@
 
       // Парсим дату/время согласно выбранному часовому поясу
       let startDate = DateTime.fromISO(startTimeInput, { zone: tz });
-      // Если дата в прошлом – показываем предупреждение
+      // Проверяем, не в прошлом ли время
       if (startDate < DateTime.now().setZone(tz)) {
         warningEl.style.display = "block";
       } else {
         warningEl.style.display = "none";
       }
 
-      // По умолчанию событие длится 1 час
-      let endDate = startDate.plus({ hours: 1 });
+      // Определяем продолжительность (в минутах)
+      const duration = parseInt(durationInput) || 60;
+      let endDate = startDate.plus({ minutes: duration });
 
       // Формируем URL для Google Календаря
       const baseUrl = "https://calendar.google.com/calendar/event?action=TEMPLATE";
-      const params = new URLSearchParams({
+      const params = {
         text: title,
         dates: `${formatToGoogleCalendar(startDate)}/${formatToGoogleCalendar(endDate)}`,
         details: details,
         location: location,
         ctz: tz
-      });
+      };
 
-      const finalUrl = `${baseUrl}&${params.toString()}`;
+      const finalUrl = `${baseUrl}&${buildReadableQueryString(params)}`;
       document.getElementById("generatedLink").value = finalUrl;
     }
 
@@ -203,7 +225,7 @@
     document.getElementById("copyButton").addEventListener("click", function() {
       const linkField = document.getElementById("generatedLink");
       linkField.select();
-      linkField.setSelectionRange(0, 99999); // Для мобильных устройств
+      linkField.setSelectionRange(0, 99999); // для мобильных устройств
       try {
         document.execCommand("copy");
         alert("Ссылка скопирована!");

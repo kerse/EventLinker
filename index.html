@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Генератор ссылки для Google Календаря</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    input[type="text"],
+    input[type="datetime-local"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus,
+    input[type="datetime-local"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #007BFF;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    #generatedLink {
+      background-color: #f9f9f9;
+      cursor: pointer;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 16px;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    small {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Генератор ссылки для Google Календаря</h1>
+    <div class="form-group">
+      <label for="eventTitle">Название события</label>
+      <input type="text" id="eventTitle" placeholder="Введите название события">
+    </div>
+    <div class="form-group">
+      <label for="eventDetails">Детали</label>
+      <textarea id="eventDetails" placeholder="Введите детали"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="startTime">Дата и время (начало)</label>
+      <input type="datetime-local" id="startTime">
+      <small id="timeWarning" style="color:red; display:none;">Введенная дата/время в прошлом!</small>
+    </div>
+    <div class="form-group">
+      <label for="timeZone">Часовой пояс</label>
+      <select id="timeZone"></select>
+    </div>
+    <div class="form-group">
+      <label for="location">Локация</label>
+      <input type="text" id="location" value="Онлайн">
+    </div>
+    <div class="form-group">
+      <label for="generatedLink">Сгенерированная ссылка</label>
+      <input type="text" id="generatedLink" readonly>
+      <button id="copyButton">Копировать</button>
+    </div>
+  </div>
+
+  <!-- Подключаем Luxon для работы с датами и часовыми поясами -->
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <script>
+    const DateTime = luxon.DateTime;
+
+    // Заполняем выпадающий список часовыми поясами
+    const timeZones = [
+      "UTC",
+      "Europe/London",
+      "Europe/Berlin",
+      "Europe/Moscow",
+      "Asia/Kolkata",
+      "Asia/Shanghai",
+      "Asia/Tokyo",
+      "Australia/Sydney",
+      "America/New_York",
+      "America/Chicago",
+      "America/Denver",
+      "America/Los_Angeles"
+    ];
+
+    const timeZoneSelect = document.getElementById("timeZone");
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    timeZones.forEach(tz => {
+      const option = document.createElement("option");
+      option.value = tz;
+      option.textContent = tz;
+      if(tz === userTimeZone) {
+        option.selected = true;
+      }
+      timeZoneSelect.appendChild(option);
+    });
+
+    // Форматирование даты для Google Календаря: YYYYMMDDTHHmmssZ
+    function formatToGoogleCalendar(dt) {
+      return dt.toUTC().toFormat("yyyyLLdd'T'HHmmss'Z'");
+    }
+
+    // Функция обновления ссылки
+    function updateLink() {
+      const title = document.getElementById("eventTitle").value;
+      const details = document.getElementById("eventDetails").value;
+      const startTimeInput = document.getElementById("startTime").value;
+      const tz = document.getElementById("timeZone").value;
+      const location = document.getElementById("location").value;
+      const warningEl = document.getElementById("timeWarning");
+
+      if (!startTimeInput) {
+        document.getElementById("generatedLink").value = "";
+        return;
+      }
+
+      // Парсим дату/время согласно выбранному часовому поясу
+      let startDate = DateTime.fromISO(startTimeInput, { zone: tz });
+      // Если дата в прошлом – показываем предупреждение
+      if (startDate < DateTime.now().setZone(tz)) {
+        warningEl.style.display = "block";
+      } else {
+        warningEl.style.display = "none";
+      }
+
+      // По умолчанию событие длится 1 час
+      let endDate = startDate.plus({ hours: 1 });
+
+      // Формируем URL для Google Календаря
+      const baseUrl = "https://calendar.google.com/calendar/event?action=TEMPLATE";
+      const params = new URLSearchParams({
+        text: title,
+        dates: `${formatToGoogleCalendar(startDate)}/${formatToGoogleCalendar(endDate)}`,
+        details: details,
+        location: location,
+        ctz: tz
+      });
+
+      const finalUrl = `${baseUrl}&${params.toString()}`;
+      document.getElementById("generatedLink").value = finalUrl;
+    }
+
+    // Обработчики событий на изменение полей
+    document.querySelectorAll("input, textarea, select").forEach(el => {
+      el.addEventListener("input", updateLink);
+      el.addEventListener("change", updateLink);
+    });
+
+    // Функция копирования ссылки в буфер обмена
+    document.getElementById("copyButton").addEventListener("click", function() {
+      const linkField = document.getElementById("generatedLink");
+      linkField.select();
+      linkField.setSelectionRange(0, 99999); // Для мобильных устройств
+      try {
+        document.execCommand("copy");
+        alert("Ссылка скопирована!");
+      } catch (err) {
+        alert("Ошибка при копировании ссылки");
+      }
+    });
+
+    // Инициализируем генерацию ссылки при загрузке страницы
+    updateLink();
+  </script>
+</body>
+</html>

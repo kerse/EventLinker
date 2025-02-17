@@ -15,9 +15,11 @@
       font-family: 'Roboto', sans-serif;
       background-color: #f4f6f8;
       color: #333;
+      padding: 10px;
     }
     .container {
       max-width: 600px;
+      width: 100%;
       margin: 40px auto;
       background: #fff;
       padding: 20px 30px;
@@ -100,6 +102,23 @@
       display: block;
       margin-top: 4px;
       font-size: 12px;
+    }
+    /* Адаптив для мобильных устройств */
+    @media (max-width: 600px) {
+      .container {
+        margin: 20px auto;
+        padding: 15px;
+      }
+      h1 {
+        font-size: 1.5em;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
+      button {
+        width: 100%;
+        margin-top: 5px;
+      }
     }
   </style>
 </head>
@@ -210,7 +229,7 @@
       return dt.toUTC().toFormat("yyyyLLdd'T'HHmmss'Z'");
     }
 
-    // Создание строки запроса без дополнительного процентного кодирования (читаемый вид)
+    // Создание строки запроса без избыточного процентного кодирования (читаемый вид)
     function buildReadableQueryString(params) {
       return Object.entries(params)
         .map(([key, value]) => key + '=' + encodeURI(value))

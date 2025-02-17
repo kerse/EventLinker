@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Генератор ссылки для Google Календаря</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap">
-  <!-- Подключаем flatpickr для удобного выбора даты и времени -->
+  <!-- Подключаем flatpickr для выбора даты и времени -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     * {
@@ -64,19 +64,37 @@
       background-color: #f9f9f9;
       cursor: pointer;
     }
-    button {
+    .btn-group {
+      display: flex;
+      gap: 10px;
       margin-top: 10px;
+    }
+    button {
+      flex: 1;
       padding: 10px 16px;
-      background-color: #007BFF;
-      color: #fff;
       border: none;
       border-radius: 4px;
       font-size: 14px;
       cursor: pointer;
       transition: background-color 0.2s;
     }
-    button:hover {
-      background-color: #0056b3;
+    button:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+    /* Стиль для кнопки "Копировать" */
+    #copyButton {
+      background-color: #007BFF;
+      color: #fff;
+    }
+    /* Стиль для кнопки "Перейти" */
+    #openButton {
+      background-color: #fff;
+      color: #007BFF;
+      border: 1px solid #007BFF;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
     small {
       display: block;
@@ -101,7 +119,7 @@
     
     <div class="form-group">
       <label for="startTime">Дата и время (начало)</label>
-      <!-- Поле, преобразованное flatpickr, с европейским форматом и 24-часовым временем -->
+      <!-- Поле, преобразованное flatpickr с европейским форматом и 24-часовым временем -->
       <input type="text" id="startTime" placeholder="dd/mm/yyyy HH:mm">
       <small id="timeWarning" style="color:red; display:none;">Введенная дата/время в прошлом!</small>
     </div>
@@ -124,7 +142,10 @@
     <div class="form-group">
       <label for="generatedLink">Сгенерированная ссылка</label>
       <input type="text" id="generatedLink" readonly>
-      <button id="copyButton">Копировать</button>
+      <div class="btn-group">
+        <button id="copyButton">Копировать</button>
+        <button id="openButton" disabled>Перейти</button>
+      </div>
     </div>
   </div>
 
@@ -176,7 +197,7 @@
       timeZoneSelect.appendChild(option);
     });
 
-    // Инициализация flatpickr для поля даты и времени
+    // Инициализация flatpickr для выбора даты и времени
     const fp = flatpickr("#startTime", {
       enableTime: true,
       dateFormat: "d/m/Y H:i",  // европейский формат: dd/mm/yyyy HH:mm
@@ -189,14 +210,14 @@
       return dt.toUTC().toFormat("yyyyLLdd'T'HHmmss'Z'");
     }
 
-    // Создание читаемой строки запроса с использованием encodeURI
+    // Создание строки запроса без дополнительного процентного кодирования (читаемый вид)
     function buildReadableQueryString(params) {
-      return Object.entries(params).map(([key, value]) => {
-        return key + '=' + encodeURI(value);
-      }).join('&');
+      return Object.entries(params)
+        .map(([key, value]) => key + '=' + encodeURI(value))
+        .join('&');
     }
 
-    // Функция обновления ссылки
+    // Функция обновления ссылки и состояния кнопки "Перейти"
     function updateLink() {
       const title = document.getElementById("eventTitle").value;
       const details = document.getElementById("eventDetails").value;
@@ -208,13 +229,15 @@
 
       if (!dateStr) {
         document.getElementById("generatedLink").value = "";
+        document.getElementById("openButton").disabled = true;
         return;
       }
 
-      // Парсинг даты из строки в формате dd/mm/yyyy HH:mm с учетом выбранного часового пояса
+      // Парсим дату из строки в формате dd/mm/yyyy HH:mm с учетом выбранного часового пояса
       let startDate = DateTime.fromFormat(dateStr, "d/M/yyyy H:mm", { zone: tz });
       if (!startDate.isValid) {
         document.getElementById("generatedLink").value = "";
+        document.getElementById("openButton").disabled = true;
         return;
       }
 
@@ -225,7 +248,7 @@
         warningEl.style.display = "none";
       }
 
-      // Определяем продолжительность (в минутах)
+      // Рассчитываем конечное время события
       const duration = parseInt(durationInput) || 60;
       let endDate = startDate.plus({ minutes: duration });
 
@@ -240,10 +263,15 @@
       };
 
       const finalUrl = `${baseUrl}&${buildReadableQueryString(params)}`;
-      document.getElementById("generatedLink").value = finalUrl;
+      // Декодируем URL для читаемости (кириллица отображается как есть)
+      const decodedUrl = decodeURI(finalUrl);
+      document.getElementById("generatedLink").value = decodedUrl;
+
+      // Включаем или отключаем кнопку "Перейти" в зависимости от наличия ссылки
+      document.getElementById("openButton").disabled = decodedUrl.trim() === "";
     }
 
-    // Обработчики событий на изменение всех полей
+    // Обработчики событий для всех полей
     document.querySelectorAll("input, textarea, select").forEach(el => {
       el.addEventListener("input", updateLink);
       el.addEventListener("change", updateLink);
@@ -259,6 +287,14 @@
         alert("Ссылка скопирована!");
       } catch (err) {
         alert("Ошибка при копировании ссылки");
+      }
+    });
+
+    // Функция открытия ссылки в новой вкладке
+    document.getElementById("openButton").addEventListener("click", function() {
+      const link = document.getElementById("generatedLink").value;
+      if (link) {
+        window.open(link, '_blank');
       }
     });
 
